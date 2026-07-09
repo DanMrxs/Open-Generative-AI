@@ -15,8 +15,6 @@ FROM deps AS builder
 ARG NEXT_PUBLIC_MUAPI_API_KEY=server-managed
 ENV NEXT_PUBLIC_MUAPI_API_KEY=${NEXT_PUBLIC_MUAPI_API_KEY}
 COPY . .
-# Ensure submodules are present (required for workspace packages).
-RUN git submodule update --init --recursive
 RUN npm run build:packages
 RUN npm run build
 
