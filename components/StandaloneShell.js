@@ -30,6 +30,7 @@ const TABS = [
 ];
 
 const STORAGE_KEY = 'muapi_key';
+const SERVER_MANAGED_KEY = process.env.NEXT_PUBLIC_MUAPI_API_KEY || null;
 
 export default function StandaloneShell() {
   const params = useParams();
@@ -145,6 +146,11 @@ export default function StandaloneShell() {
       fetchBalance(stored);
       // Sync cookie immediately on mount to establish identity for background requests
       document.cookie = `muapi_key=${stored}; path=/; max-age=31536000; SameSite=Lax`;
+    } else if (SERVER_MANAGED_KEY) {
+      // Server-managed deployment: middleware injects the real key;
+      // browser only needs a marker so the UI does not block on the key modal.
+      setApiKey(SERVER_MANAGED_KEY);
+      document.cookie = `muapi_key=${SERVER_MANAGED_KEY}; path=/; max-age=31536000; SameSite=Lax`;
     }
   }, [fetchBalance]);
 

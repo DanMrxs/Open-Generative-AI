@@ -36,7 +36,11 @@ export function middleware(request) {
 
         if (url.pathname.startsWith('/api/v1') && !isHandledByRoute) {
             const targetUrl = new URL(url.pathname + url.search, 'https://api.muapi.ai');
-            const rewriteResponse = NextResponse.rewrite(targetUrl);
+            const rewriteResponse = NextResponse.rewrite(targetUrl, {
+                headers: {
+                    'x-api-key': process.env.MUAPI_API_KEY || '',
+                },
+            });
             return addSecurityHeaders(rewriteResponse);
         }
     }

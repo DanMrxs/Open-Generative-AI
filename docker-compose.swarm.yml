@@ -1,0 +1,51 @@
+version: "3.8"
+
+services:
+  open-generative-ai:
+    image: open-generative-ai:latest
+    build: .
+    environment:
+      - NODE_ENV=production
+      - MUAPI_API_KEY=${MUAPI_API_KEY}
+      - GOOGLE_AI_STUDIO_KEY=${GOOGLE_AI_STUDIO_KEY:-}
+    networks:
+      - network_public
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first
+        failure_action: rollback
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1G
+        reservations:
+          cpus: "0.25"
+          memory: 256M
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=network_public"
+        - "traefik.http.routers.open-generative-ai.rule=Host(\`studio.danlab.vip\`)"
+        - "traefik.http.routers.open-generative-ai.entrypoints=websecure"
+        - "traefik.http.routers.open-generative-ai.tls.certresolver=letsencryptresolver"
+        - "traefik.http.services.open-generative-ai.loadbalancer.server.port=3000"
+        - "traefik.http.services.open-generative-ai.loadbalancer.healthcheck.path=/health"
+        - "traefik.http.services.open-generative-ai.loadbalancer.healthcheck.interval=30s"
+        - "traefik.http.services.open-generative-ai.loadbalancer.healthcheck.timeout=10s"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+networks:
+  network_public:
+    external: true
+    name: network_public
