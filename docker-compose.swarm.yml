@@ -31,7 +31,7 @@ services:
       labels:
         - "traefik.enable=true"
         - "traefik.docker.network=network_public"
-        - "traefik.http.routers.open-generative-ai.rule=Host(\`studio.danlab.vip\`)"
+        - 'traefik.http.routers.open-generative-ai.rule=Host(`studio.danlab.vip`)'
         - "traefik.http.routers.open-generative-ai.entrypoints=websecure"
         - "traefik.http.routers.open-generative-ai.tls.certresolver=letsencryptresolver"
         - "traefik.http.services.open-generative-ai.loadbalancer.server.port=3000"
